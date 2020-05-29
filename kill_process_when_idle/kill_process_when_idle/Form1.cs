@@ -17,8 +17,8 @@ namespace kill_process_when_idle
         const String PROGRAM_NAME = "ERP閒置中斷程式";
         const String KILL_PROCESS_NAME = "erp2017m";
         const String KILL_PROCESS_KEYWORD = "ERP2017";
-        int MAX_REMAIN_TIME = 30;
-        int REMAIN_TIME = 30;
+        int MAX_REMAIN_TIME = 480;
+        int REMAIN_TIME = 480;
 
 
         //抓取運行程式標題的DLL引入
@@ -41,6 +41,19 @@ namespace kill_process_when_idle
                 strTitle = stringBuilder.ToString();
             }
             return strTitle;
+        }
+
+
+        //覆寫windows關機事件
+        protected override void WndProc(ref Message aMessage)
+        {
+            const int WM_QUERYENDSESSION = 0x0011;
+            const int WM_ENDSESSION = 0x0016;
+
+            //如果程式收到關機訊號 則自己關閉
+            if (aMessage.Msg == WM_QUERYENDSESSION || aMessage.Msg == WM_ENDSESSION)
+                Process.GetCurrentProcess().Kill();
+            base.WndProc(ref aMessage);
         }
 
         public void StartCount() {
